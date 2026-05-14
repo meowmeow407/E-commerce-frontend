@@ -8,31 +8,37 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
-  // Login Form States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // These must match the names in your MySQL 'categories' table exactly
   const categories = ['All', 'Electronics', 'Fashion', 'Home & Garden'];
 
-  // --- API FETCHING ---
-  const fetchProducts = async () => {
-    try {
-      // Constructs the URL with search and category filters
-      let url = `http://localhost:5000/api/products?search=${searchTerm}`;
-      if (activeCategory !== 'All') {
-        url += `&category=${activeCategory}`;
-      }
+  // --- TEMPORARY DATA LOGIC (MOCK DATA) ---
+  // We use this instead of a backend fetch for the GitHub demo
+  const fetchProducts = () => {
+    const mockData = [
+      { id: 1, name: 'Wireless Mouse', price: 1500, category_name: 'Electronics', image_url: './images/mouse.jpg' },
+      { id: 2, name: 'Mechanical Keyboard', price: 3500, category_name: 'Electronics', image_url: './images/keyboard.jpg' },
+      { id: 3, name: 'Coffee Mug', price: 499, category_name: 'Home & Garden', image_url: './images/mug.jpg' },
+      { id: 4, name: 'Denim Jacket', price: 2499, category_name: 'Fashion', image_url: './images/jacket.jpg' }
+    ];
 
-      const response = await fetch(url);
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    // 1. Filter by Category
+    let filtered = activeCategory === 'All' 
+      ? mockData 
+      : mockData.filter(p => p.category_name === activeCategory);
+    
+    // 2. Filter by Search Term
+    if (searchTerm) {
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
+      
+    setProducts(filtered);
   };
 
-  // Re-run fetch whenever search or category changes
+  // Re-run the local filter whenever search or category changes
   useEffect(() => {
     if (isLoggedIn) {
       fetchProducts();
@@ -42,7 +48,6 @@ function App() {
   // --- HANDLERS ---
   const handleLogin = (e) => {
     e.preventDefault();
-    // Basic validation to enter the site
     if (email && password) {
       setIsLoggedIn(true);
     } else {
@@ -55,22 +60,6 @@ function App() {
     setEmail('');
     setPassword('');
   };
-  const fetchProducts = async () => {
-  // Temporary hardcoded data for GitHub demo
-  const mockData = [
-    { id: 1, name: 'Wireless Mouse', price: 1500, category_name: 'Electronics', image_url: './images/mouse.jpg' },
-    { id: 2, name: 'Mechanical Keyboard', price: 3500, category_name: 'Electronics', image_url: './images/keyboard.jpg' },
-    { id: 3, name: 'Coffee Mug', price: 499, category_name: 'Home & Garden', image_url: './images/mug.jpg' },
-    { id: 4, name: 'Denim Jacket', price: 2499, category_name: 'Fashion', image_url: './images/jacket.jpg' }
-  ];
-
-  // Filter the mock data based on the active tab
-  const filtered = activeCategory === 'All' 
-    ? mockData 
-    : mockData.filter(p => p.category_name === activeCategory);
-    
-  setProducts(filtered);
-};
 
   // --- 1. LOGIN SCREEN ---
   if (!isLoggedIn) {
@@ -104,7 +93,6 @@ function App() {
   // --- 2. MAIN STOREFRONT ---
   return (
     <div className="App">
-      {/* HEADER & NAVIGATION */}
       <nav className="navbar">
         <div className="nav-top">
           <div className="logo">SHOP<span>ZEN</span></div>
@@ -112,7 +100,7 @@ function App() {
           <div className="search-wrapper">
             <input 
               type="text" 
-              placeholder="What are you looking for today?" 
+              placeholder="Search products..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -136,7 +124,6 @@ function App() {
         </div>
       </nav>
 
-      {/* PRODUCT GRID */}
       <main className="product-grid">
         {products.length > 0 ? (
           products.map((product) => (
@@ -146,7 +133,7 @@ function App() {
                   src={product.image_url} 
                   alt={product.name} 
                   className="product-image"
-                  onError={(e) => { e.target.src = 'https://via.placeholder.com/200?text=No+Image'; }}
+                  onError={(e) => { e.target.src = 'https://via.placeholder.com/200?text=Image+Missing'; }}
                 />
               </div>
               <div className="product-info">
@@ -159,7 +146,7 @@ function App() {
         ) : (
           <div className="no-data">
             <h2>No products found</h2>
-            <p>Try adjusting your search or category filters.</p>
+            <p>Try adjusting your filters.</p>
           </div>
         )}
       </main>
