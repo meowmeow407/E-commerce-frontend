@@ -55,6 +55,22 @@ function App() {
     setEmail('');
     setPassword('');
   };
+  const fetchProducts = async () => {
+  // Temporary hardcoded data for GitHub demo
+  const mockData = [
+    { id: 1, name: 'Wireless Mouse', price: 1500, category_name: 'Electronics', image_url: './images/mouse.jpg' },
+    { id: 2, name: 'Mechanical Keyboard', price: 3500, category_name: 'Electronics', image_url: './images/keyboard.jpg' },
+    { id: 3, name: 'Coffee Mug', price: 499, category_name: 'Home & Garden', image_url: './images/mug.jpg' },
+    { id: 4, name: 'Denim Jacket', price: 2499, category_name: 'Fashion', image_url: './images/jacket.jpg' }
+  ];
+
+  // Filter the mock data based on the active tab
+  const filtered = activeCategory === 'All' 
+    ? mockData 
+    : mockData.filter(p => p.category_name === activeCategory);
+    
+  setProducts(filtered);
+};
 
   // --- 1. LOGIN SCREEN ---
   if (!isLoggedIn) {
